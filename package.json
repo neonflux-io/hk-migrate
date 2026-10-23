@@ -1,0 +1,60 @@
+{
+  "name": "hk-migrate",
+  "version": "0.1.0",
+  "description": "Versioned SQL migrations for Harakumo edge SQLite — CLI, typed library, and MCP server, built on @harakumo/sdk.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "hk-migrate": "./dist/bin.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:live": "vitest run test/live.test.ts",
+    "prepublishOnly": "npm run typecheck && npm test && npm run build"
+  },
+  "keywords": [
+    "harakumo",
+    "sqlite",
+    "migrations",
+    "edge",
+    "mcp",
+    "cli"
+  ],
+  "author": "neonflux-io <davis20001111@outlook.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/neonflux-io/hk-migrate.git"
+  },
+  "homepage": "https://github.com/neonflux-io/hk-migrate#readme",
+  "bugs": {
+    "url": "https://github.com/neonflux-io/hk-migrate/issues"
+  },
+  "engines": {
+    "node": ">=22.13"
+  },
+  "dependencies": {
+    "@harakumo/sdk": "^0.1.0",
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
+  }
+}
