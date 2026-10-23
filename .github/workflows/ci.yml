@@ -1,0 +1,42 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: [22, 24]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+  live:
+    # Runs against a real Harakumo database when the repository has the secrets.
+    needs: test
+    runs-on: ubuntu-latest
+    env:
+      HARAKUMO_API_KEY: ${{ secrets.HARAKUMO_API_KEY }}
+      HARAKUMO_TEST_DB_ID: ${{ vars.HARAKUMO_TEST_DB_ID }}
+    steps:
+      - uses: actions/checkout@v4
+        if: env.HARAKUMO_API_KEY != ''
+      - uses: actions/setup-node@v4
+        if: env.HARAKUMO_API_KEY != ''
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci && npm run test:live
+        if: env.HARAKUMO_API_KEY != ''
