@@ -1,0 +1,26 @@
+# .github/workflows/deploy.yml for an app that keeps its migrations in ./migrations
+name: deploy
+
+on:
+  push:
+    branches: [main]
+
+concurrency: deploy-production   # one deploy at a time; hk-migrate's lock covers anything else
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      HARAKUMO_API_KEY: ${{ secrets.HARAKUMO_API_KEY }}
+      HARAKUMO_DB_ID: ${{ vars.HARAKUMO_DB_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: npm }
+      - run: npm ci && npm run build
+
+      # Stop before touching anything if history was edited or a migration failed earlier.
+      - run: npx hk-migrate verify
+      # Additive schema changes go out before the code that uses them.
+      - run: npx hk-migrate up --json
+      - run: npx harakumo deploy ${{ vars.HARAKUMO_PROJECT_ID }} ./dist
